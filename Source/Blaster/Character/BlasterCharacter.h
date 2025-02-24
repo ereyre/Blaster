@@ -54,7 +54,7 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 	/** called for use action input */
-	void Jump(const FInputActionValue& Value);
+	void BlasterJump(const FInputActionValue& Value);
 
 	
 private:

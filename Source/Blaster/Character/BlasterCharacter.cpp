@@ -80,7 +80,7 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void ABlasterCharacter::Jump(const FInputActionValue& Value)
+void ABlasterCharacter::BlasterJump(const FInputActionValue& Value)
 {
 	Super::Jump();
 	UE_LOG(LogTemp, Display, TEXT("JumpAction"));
@@ -110,7 +110,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 			UE_LOG(LogTemp, Error, TEXT("MoveAction is null!"));
 		}
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Look);
-		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ABlasterCharacter::Jump);
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ABlasterCharacter::BlasterJump);
 	}
 
 }
