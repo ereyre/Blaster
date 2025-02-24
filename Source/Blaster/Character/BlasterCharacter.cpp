@@ -4,7 +4,12 @@
 #include "Blaster/Character/BlasterCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "InputMappingContext.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -21,13 +26,64 @@ ABlasterCharacter::ABlasterCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 // Called when the game starts or when spawned
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (Controller)
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s is possessed by %s"), *GetName(), *Controller->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s is not possessed"), *GetName());
+	}
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Player Controller is %s"), *PlayerController->GetName());
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			if (InputMapping)
+			{
+				Subsystem->AddMappingContext(InputMapping, 0);
+				UE_LOG(LogTemp, Display, TEXT("Input Mapping Context added"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("InputMapping is null!"));
+			}
+		}
+	}
 	
+}
+
+void ABlasterCharacter::Move(const FInputActionValue& Value)
+{
+	// input is a Vector2D
+	FVector2D MovementVector = Value.Get<FVector2D>();
+	const FRotator Rotation(0.f, Controller->GetControlRotation().Yaw, Controller->GetControlRotation().Roll);
+	const FVector RightDirection( FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y));
+	const FVector ForwardDirection( FRotationMatrix(Rotation).GetUnitAxis(EAxis::X));
+	AddMovementInput(RightDirection, MovementVector.X);
+	AddMovementInput(ForwardDirection, MovementVector.Y);
+}
+
+void ABlasterCharacter::Look(const FInputActionValue& Value)
+{
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	AddControllerYawInput(LookAxisVector.X);
+	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void ABlasterCharacter::Jump(const FInputActionValue& Value)
+{
+	Super::Jump();
+	UE_LOG(LogTemp, Display, TEXT("JumpAction"));
 }
 
 // Called every frame
@@ -41,6 +97,21 @@ void ABlasterCharacter::Tick(float DeltaTime)
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		if (MoveAction)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Binding MoveAction"));
+			Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Move);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("MoveAction is null!"));
+		}
+		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Look);
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ABlasterCharacter::Jump);
+	}
 
 }
 
