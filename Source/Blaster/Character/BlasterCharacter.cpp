@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
@@ -35,7 +36,28 @@ ABlasterCharacter::ABlasterCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
+	
 }
+
+void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ABlasterCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
+}
+
 
 // Called when the game starts or when spawned
 void ABlasterCharacter::BeginPlay()
@@ -99,6 +121,14 @@ void ABlasterCharacter::BlasterJump(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Display, TEXT("JumpAction"));
 }
 
+void ABlasterCharacter::EquipButtonPressed(const FInputActionValue& Value)
+{
+	if (Combat && HasAuthority())
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
+}
+
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	if (OverlappingWeapon)
@@ -115,16 +145,24 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(false);
-	}
-	OverlappingWeapon = Weapon;
 	if (IsLocallyControlled())
 	{
 		if (OverlappingWeapon)
 		{
-			OverlappingWeapon->ShowPickupWidget(true);
+			OverlappingWeapon->ShowPickupWidget(false);
+		}
+	}
+
+	OverlappingWeapon = Weapon;
+
+	if (IsLocallyControlled())
+	{
+		if (IsLocallyControlled())
+		{
+			if (OverlappingWeapon)
+			{
+				OverlappingWeapon->ShowPickupWidget(true);
+			}
 		}
 	}
 }
@@ -148,14 +186,9 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		}
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Look);
 		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ABlasterCharacter::BlasterJump);
+		Input->BindAction(EquipAction, ETriggerEvent::Started, this, &ABlasterCharacter::EquipButtonPressed);
 	}
 
 }
 
-void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
-}
 

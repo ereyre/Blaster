@@ -10,6 +10,7 @@ class AWeapon;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class UCombatComponent;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter
@@ -24,6 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* InputMapping;
@@ -36,6 +38,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* EquipAction;
 
 protected:
 	// Called when the game starts or when spawned
@@ -50,6 +55,8 @@ protected:
 	/** called for use action input */
 	void BlasterJump(const FInputActionValue& Value);
 
+	void EquipButtonPressed(const FInputActionValue& Value);
+
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
@@ -63,6 +70,9 @@ private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_OverlappingWeapon)
 	AWeapon* OverlappingWeapon;
+
+	UPROPERTY(VisibleAnywhere)
+	UCombatComponent* Combat;
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);

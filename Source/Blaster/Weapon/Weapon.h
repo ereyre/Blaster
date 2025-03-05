@@ -66,6 +66,7 @@ private:
 	UWidgetComponent* PickupWidget;
 
 public:
+	FORCEINLINE void SetWeaponState(EWeaponState State) {WeaponState = State;}
 
 };
 

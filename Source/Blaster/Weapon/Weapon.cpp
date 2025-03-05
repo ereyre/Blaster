@@ -66,6 +66,8 @@ void AWeapon::Tick(float DeltaTime)
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (WeaponState == EWeaponState::EWS_Equipped) return;
+	
 	if (ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor))
 	{
 		BlasterCharacter->SetOverlappingWeapon(this);
