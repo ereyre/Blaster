@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* EquipAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* CrouchAction;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -56,6 +59,8 @@ protected:
 	void BlasterJump(const FInputActionValue& Value);
 
 	void EquipButtonPressed(const FInputActionValue& Value);
+
+	void CrouchButtonPressed(const FInputActionValue& Value);
 
 	
 private:
