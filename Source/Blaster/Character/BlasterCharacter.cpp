@@ -199,6 +199,14 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
+	if (AO_Pitch >90.f && !IsLocallyControlled())  // all this because of packed data to send less data over the network. 
+	{
+		// amp pitch from range [270, 360) to [-90, 90)
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90.f, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped( InRange, OutRange, AO_Pitch);
+	}
+	
 	
 }
 
