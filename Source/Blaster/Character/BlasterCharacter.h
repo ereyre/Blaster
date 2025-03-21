@@ -69,7 +69,9 @@ protected:
 	void AimButtonPressed(const FInputActionValue& Value);
 	void AimButtonReleased(const FInputActionValue& Value);
 
-	void AimOffset(float DeltaTime); 
+	void AimOffset(float DeltaTime);
+
+	
 
 	
 private:

@@ -45,6 +45,7 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
@@ -69,6 +70,8 @@ void ABlasterCharacter::PostInitializeComponents()
 		Combat->Character = this;
 	}
 }
+
+
 
 
 // Called when the game starts or when spawned
@@ -131,8 +134,15 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 
 void ABlasterCharacter::BlasterJump(const FInputActionValue& Value)
 {
-	Super::Jump();
 	UE_LOG(LogTemp, Display, TEXT("JumpAction"));
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Super::Jump();	
+	}
 }
 
 void ABlasterCharacter::EquipButtonPressed(const FInputActionValue& Value)
