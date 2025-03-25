@@ -64,7 +64,14 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+	if (Character && bPressed)
+	{
+		Character->PlayFireMontage(bAiming);
+	}
+}
 
 
 // Called every frame
@@ -72,7 +79,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
