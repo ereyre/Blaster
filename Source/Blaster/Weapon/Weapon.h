@@ -21,6 +21,7 @@ enum class EWeaponState : uint8
 
 
 class USphereComponent;
+class ACasing; 
 
 UCLASS()
 class BLASTER_API AWeapon : public AActor
@@ -73,6 +74,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	UAnimationAsset* FireAnimation;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ACasing> CasingClass;
 
 public:
 	void SetWeaponState(EWeaponState State) ;
