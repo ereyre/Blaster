@@ -29,7 +29,8 @@ void ACasing::BeginPlay()
 
 	CasingMesh->OnComponentHit.AddDynamic(this, &ACasing::OnHit);
 	CasingMesh->AddImpulse(GetActorForwardVector() * ShellEjectionImpulse);
-	
+
+	SetLifeSpan(3.f);
 	
 }
 
@@ -40,6 +41,7 @@ void ACasing::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ShellSound, GetActorLocation());
 	}
-	Destroy();
+	
+	CasingMesh->SetNotifyRigidBodyCollision(false);
 }
 
