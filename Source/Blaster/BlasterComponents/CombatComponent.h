@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class ABlasterHUD;
+class ABlasterPlayerController;
 class AWeapon;
 class ABlasterCharacter;
 
@@ -47,10 +49,14 @@ protected:
 
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
+	void SetHUDCrosshairs(float DeltaTime);
 	
 
 private:
 	ABlasterCharacter* Character;
+	ABlasterPlayerController* PlayerController;
+	ABlasterHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
