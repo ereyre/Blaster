@@ -78,5 +78,7 @@ private:
 
 	float CrosshairVelocityFactor;
 	float CrosshairsInAirFactor;
+
+	FVector HitTarget;
 		
 };
