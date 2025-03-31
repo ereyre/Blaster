@@ -74,7 +74,9 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		if (BlasterCharacter->IsLocallyControlled())
 		{
 			bLocallyControlled = true;
-			//FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("Hand_R"), RTS_World );
+			/** Original from the course, it's wrong but can works because if GetsocketTransform return the root position of the mesh (and they are close) 
+			 * FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("Hand_R"), RTS_World );
+			 */
 			FTransform RightHandTransform =BlasterCharacter->GetMesh()->GetSocketTransform(FName("hand_r"), RTS_World );
 			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(),  RightHandTransform.GetLocation() +( RightHandTransform.GetLocation() - BlasterCharacter->GetHitTarget()));
 		}
