@@ -28,7 +28,11 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
-	void PlayFireMontage (bool bAiming); 
+	void PlayFireMontage (bool bAiming);
+	
+
+	UFUNCTION(NetMulticast, unreliable)
+	void MulticastHit();
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* InputMapping;
@@ -79,7 +83,7 @@ protected:
 	void FireButtonPressed(const FInputActionValue& Value) ;
 	void FireButtonReleased(const FInputActionValue& Value) ;
 
-	
+	void PlayHitReactMontage ();
 
 	
 private:
@@ -114,6 +118,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Combat)
 	UAnimMontage* FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category=Combat)
+	UAnimMontage* HitReactMontage;
+
+	
+	
+
 
 	void HideCameraIfCharacterClose();
 
