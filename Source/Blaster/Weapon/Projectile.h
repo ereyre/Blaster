@@ -8,6 +8,9 @@
 
 class UProjectileMovementComponent;
 class UBoxComponent;
+class USoundCue;
+class UParticleSystem;
+class UParticleSystemComponent;
 
 UCLASS()
 class BLASTER_API AProjectile : public AActor
@@ -41,7 +44,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* ImpactParticle;
-
+	
 	UPROPERTY(EditAnywhere)
 	USoundCue* ImpactSound;
+	
 };

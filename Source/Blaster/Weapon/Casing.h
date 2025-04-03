@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Casing.generated.h"
 
+class USoundCue;
+
+
 UCLASS()
 class BLASTER_API ACasing : public AActor
 {
@@ -32,9 +35,5 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* ShellSound;
-
-public:	
 	
-
-
 };
