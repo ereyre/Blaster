@@ -30,10 +30,11 @@ public:
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage (bool bAiming);
 	
-
 	UFUNCTION(NetMulticast, unreliable)
 	void MulticastHit();
 
+	virtual void OnRep_ReplicatedMovement() override;
+	
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* InputMapping;
 
@@ -77,8 +78,10 @@ protected:
 
 	void AimButtonPressed(const FInputActionValue& Value);
 	void AimButtonReleased(const FInputActionValue& Value);
+	void CalculateAO_Pitch();
 
 	void AimOffset(float DeltaTime);
+	void SimProxiesTurn();
 
 	void FireButtonPressed(const FInputActionValue& Value) ;
 	void FireButtonReleased(const FInputActionValue& Value) ;
@@ -121,15 +124,20 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Combat)
 	UAnimMontage* HitReactMontage;
-
 	
-	
-
-
 	void HideCameraIfCharacterClose();
 
 	UPROPERTY(EditAnywhere, Category=Camera)
 	float CameraThreshold = 200.f;
+
+	bool bRotateRootBone;
+	float TurnThreshold = 0.5f;
+	FRotator ProxyRotationLastFrame;
+	FRotator ProxyRotation;
+	float ProxyYaw;
+	float TimeSinceLastMovementReplication;
+	float CalculateSpeed();
+	
 	
 public:
 	void  SetOverlappingWeapon(AWeapon* Weapon) ;
@@ -142,6 +150,7 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FVector GetHitTarget() const;
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 };
 
 
