@@ -20,15 +20,17 @@ class BLASTER_API AProjectile : public AActor
 public:	
 	AProjectile();
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
+	UPROPERTY(EditAnywhere)
+	float Damage= 20.f;
+
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-public:	
-	virtual void Tick(float DeltaTime) override;
 
 private:
 	UPROPERTY(EditAnywhere)

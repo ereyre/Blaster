@@ -60,6 +60,53 @@ ABlasterCharacter::ABlasterCharacter()
 	
 }
 
+// Called when the game starts or when spawned
+void ABlasterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	BlasterPlayerController =  BlasterPlayerController == nullptr ?  Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(BlasterPlayerController->GetLocalPlayer()))
+		{
+			if (InputMapping)
+			{
+				Subsystem->AddMappingContext(InputMapping, 0);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("InputMapping is null!"));
+			}
+		}
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+	}
+}
+
+// Called every frame
+void ABlasterCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (GetLocalRole()> ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		TimeSinceLastMovementReplication += DeltaTime;
+		if (TimeSinceLastMovementReplication > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		CalculateAO_Pitch();
+	}
+	HideCameraIfCharacterClose();
+}
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -114,57 +161,33 @@ void ABlasterCharacter::PlayHitReactMontage()
 	}
 }
 
-
-// Called when the game starts or when spawned
-void ABlasterCharacter::BeginPlay()
+void ABlasterCharacter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedActor, AActor* DamageCauser)
 {
-	Super::BeginPlay();
+	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+	
+}
 
-	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController =  BlasterPlayerController == nullptr ?  Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
 	if (BlasterPlayerController)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Player Controller is %s"), *BlasterPlayerController->GetName());
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(BlasterPlayerController->GetLocalPlayer()))
-		{
-			if (InputMapping)
-			{
-				Subsystem->AddMappingContext(InputMapping, 0);
-				UE_LOG(LogTemp, Display, TEXT("Input Mapping Context added"));
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("InputMapping is null!"));
-			}
-		}
-
 		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
-		
 	}
 }
 
-// Called every frame
-void ABlasterCharacter::Tick(float DeltaTime)
+void ABlasterCharacter::OnRep_Health()
 {
-	Super::Tick(DeltaTime);
-
-	if (GetLocalRole()> ROLE_SimulatedProxy && IsLocallyControlled())
-	{
-		AimOffset(DeltaTime);
-	}
-	else
-	{
-		TimeSinceLastMovementReplication += DeltaTime;
-		if (TimeSinceLastMovementReplication > 0.25f)
-		{
-			OnRep_ReplicatedMovement();
-		}
-		CalculateAO_Pitch();
-		
-	}
-	
-	HideCameraIfCharacterClose();
-	
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }
+
+
+
+
 
 void ABlasterCharacter::Move(const FInputActionValue& Value)
 {
@@ -391,10 +414,7 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
-void ABlasterCharacter::MulticastHit_Implementation()
-{
-	PlayHitReactMontage();
-}
+
 
 void ABlasterCharacter::HideCameraIfCharacterClose()
 {
@@ -423,9 +443,6 @@ float ABlasterCharacter::CalculateSpeed()
 	return Velocity.Size();
 }
 
-void ABlasterCharacter::OnRep_Health()
-{
-}
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
