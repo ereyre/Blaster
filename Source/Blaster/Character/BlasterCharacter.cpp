@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 #include "Blaster/Blaster.h"
 #include "Blaster/BlasterComponents/CombatComponent.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
@@ -118,18 +119,12 @@ void ABlasterCharacter::PlayHitReactMontage()
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (Controller)
+
+	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
+	if (BlasterPlayerController)
 	{
-		UE_LOG(LogTemp, Display, TEXT("%s is possessed by %s"), *GetName(), *Controller->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s is not possessed"), *GetName());
-	}
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		UE_LOG(LogTemp, Display, TEXT("Player Controller is %s"), *PlayerController->GetName());
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		UE_LOG(LogTemp, Display, TEXT("Player Controller is %s"), *BlasterPlayerController->GetName());
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(BlasterPlayerController->GetLocalPlayer()))
 		{
 			if (InputMapping)
 			{
@@ -141,6 +136,9 @@ void ABlasterCharacter::BeginPlay()
 				UE_LOG(LogTemp, Error, TEXT("InputMapping is null!"));
 			}
 		}
+
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+		
 	}
 }
 
