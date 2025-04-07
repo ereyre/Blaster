@@ -30,9 +30,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage (bool bAiming);
-	
-	
 	virtual void OnRep_ReplicatedMovement() override;
+	void Elim();
+	
 	
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* InputMapping;
