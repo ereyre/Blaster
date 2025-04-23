@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "Blaster/Interfaces/InteractWithCrosshairsInterface.h"
+#include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
 class ABlasterPlayerController;
@@ -170,6 +171,30 @@ private:
 	FTimerHandle ElimTimer;
 
 	void ElimTimerFinished();
+
+	/**
+	 *  Dissolve Effect
+	 */
+	UPROPERTY(VisibleAnywhere, Category = "Dissolve")
+	UTimelineComponent* DissolveTimeline;
+
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere, Category = "Dissolve")
+	UCurveFloat* DissolveCurve;
+
+	UFUNCTION()
+	void UpdateDissolveTrack(float Value);
+
+	void StartDissolve();
+
+	// Dynamic ionstance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	// Material instance set on the blueprint,  used with the dynamic material instance
+	UPROPERTY(EditAnywhere, Category = "Elim")
+	UMaterialInstance* DissolveMaterialInstance;
 	
 	
 public:
